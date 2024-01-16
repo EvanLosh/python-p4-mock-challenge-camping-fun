@@ -35,7 +35,7 @@ def campers():
         )
     elif request.method == 'POST':
         form_data = request.get_json()
-        if (8 <= form_data['age'] <= 18) and len(form_data['name']) > 0:
+        try:
             new_camper = Camper(
                 name = form_data['name'],
                 age = form_data['age']
@@ -46,7 +46,7 @@ def campers():
                 new_camper.to_dict(),
                 201
             )
-        else:
+        except:
             response = make_response(
                 {'errors': 'invalid form data'},
                 400
@@ -63,8 +63,7 @@ def activities():
         )
     elif request.method == 'POST':
         form_data = request.get_json()
-        # if (8 <= form_data['age'] <= 18) and len(form_data['name']) > 0:
-        if isinstance(form_data['difficulty'], int) and isinstance(form_data['name'], str):
+        try:
             new_activity = Activity(
                 name = form_data['name'],
                 difficulty = form_data['difficulty']
@@ -75,7 +74,7 @@ def activities():
                 new_activity.to_dict(),
                 201
             )
-        else:
+        except:
             response = make_response(
                 {'errors': 'invalid form data'},
                 400
@@ -90,14 +89,9 @@ def signups():
     #         signups_dicts,
     #         200
     #     )
-    elif request.method == 'POST':
+    if request.method == 'POST':
         form_data = request.get_json()
-        invalid = False
-        # if (8 <= form_data['age'] <= 18) and len(form_data['name']) > 0:
-        # if isinstance(form_data['difficulty'], int) and isinstance(form_data['name'], str):
-        if not (0<= form_data['time'] <= 23):
-            invalid = True
-        if not invalid:
+        try:
             new_signup = Signup(
                 time = form_data['time'],
                 camper_id = form_data['camper_id'],
@@ -109,7 +103,7 @@ def signups():
                 new_signup.to_dict(),
                 201
             )
-        else:
+        except:
             response = make_response(
                 {'errors': ['validation errors']},
                 400
@@ -126,31 +120,22 @@ def camper_by_id(id):
                 200
             )
         elif request.method == 'PATCH':
-            invalid = False
             form_data = request.get_json()
-            # if (form_data['name'] and len(form_data['name']) > 0) and (form_data['age'] and 8 <= form_data['age'] <= 18):
-            for attr in form_data:
-                if attr == 'name':
-                    if len(form_data['name']) > 0:
-                        setattr(camper, attr, form_data[attr])
-                    else:
-                        invalid = True
-                if attr == 'age':
-                    if 8 <= form_data['age'] <= 18:
-                        setattr(camper, attr, form_data[attr])
-                    else: 
-                        invalid = True
-            if not invalid:
+            try:
+                for attr in form_data:
+                    setattr(camper, attr, form_data[attr])
                 db.session.commit()
                 response = make_response(
                     camper.to_dict(),
                     202
                 )
-            else:
+
+            except:
                 response = make_response(
                     {'errors': ['validation errors']},
                     400
                 )
+
     else:
         response = make_response(
             {'error': 'Camper not found'},
@@ -168,6 +153,9 @@ def activity_by_id(id):
                 200
             )
         if request.method == 'DELETE':
+            assoc_signups = Signup.query.filter_by(id = activity.id).all()
+            for s in assoc_signups:
+                db.session.delete(s)
             db.session.delete(activity)
             db.session.commit()
             response = make_response(
@@ -175,20 +163,11 @@ def activity_by_id(id):
                 204
             )
         # elif request.method == 'PATCH':
-        #     invalid = False
         #     form_data = request.get_json()
-        #     for attr in form_data:
-        #         if attr == 'name':
-        #             if isinstance(form_data['name'], str):
-        #                 setattr(activity, attr, form_data[attr])
-        #             else:
-        #                 invalid = True
-        #         if attr == 'difficulty':
-        #             if isinstance(form_data['difficulty'], int):
-        #                 setattr(activity, attr, form_data[attr])
-        #             else: 
-        #                 invalid = True
-        #     if not invalid:
+        #     try:
+        #         for attr in form_data:
+        #             setattr(activity, attr, form_data[attr])
+        #         db.session.add(activity)  
         #         db.session.commit()
         #         response = make_response(
         #             activity.to_dict(),
