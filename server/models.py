@@ -20,7 +20,7 @@ db = SQLAlchemy(metadata=metadata)
 class Activity(db.Model, SerializerMixin):
     __tablename__ = 'activities'
 
-    serialize_rules = ('-signups.activity',)
+
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -29,6 +29,7 @@ class Activity(db.Model, SerializerMixin):
     # Add relationship
     signups = db.relationship('Signup', back_populates = 'activity')
     # Add serialization rules
+    serialize_rules = ('-signups.activity',)
     
     def __repr__(self):
         return f'<Activity {self.id}: {self.name}>'

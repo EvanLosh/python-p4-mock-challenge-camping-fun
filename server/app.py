@@ -82,14 +82,14 @@ def activities():
             )
     return response
 
-@app.route('/signups', methods = ['GET', 'POST'])
+@app.route('/signups', methods = ['POST'])
 def signups():
-    if request.method == 'GET':
-        signups_dicts = [a.to_dict(rules = ('-signups',)) for a in Signup.query.all()]
-        response = make_response(
-            signups_dicts,
-            200
-        )
+    # if request.method == 'GET':
+    #     signups_dicts = [a.to_dict(rules = ('-signups',)) for a in Signup.query.all()]
+    #     response = make_response(
+    #         signups_dicts,
+    #         200
+    #     )
     elif request.method == 'POST':
         form_data = request.get_json()
         invalid = False
@@ -174,32 +174,31 @@ def activity_by_id(id):
                 {},
                 204
             )
-        elif request.method == 'PATCH':
-            invalid = False
-            form_data = request.get_json()
-            # if (form_data['name'] and len(form_data['name']) > 0) and (form_data['age'] and 8 <= form_data['age'] <= 18):
-            for attr in form_data:
-                if attr == 'name':
-                    if isinstance(form_data['name'], str):
-                        setattr(activity, attr, form_data[attr])
-                    else:
-                        invalid = True
-                if attr == 'difficulty':
-                    if isinstance(form_data['difficulty'], int):
-                        setattr(activity, attr, form_data[attr])
-                    else: 
-                        invalid = True
-            if not invalid:
-                db.session.commit()
-                response = make_response(
-                    activity.to_dict(),
-                    202
-                )
-            else:
-                response = make_response(
-                    {'errors': ['validation errors']},
-                    400
-                )
+        # elif request.method == 'PATCH':
+        #     invalid = False
+        #     form_data = request.get_json()
+        #     for attr in form_data:
+        #         if attr == 'name':
+        #             if isinstance(form_data['name'], str):
+        #                 setattr(activity, attr, form_data[attr])
+        #             else:
+        #                 invalid = True
+        #         if attr == 'difficulty':
+        #             if isinstance(form_data['difficulty'], int):
+        #                 setattr(activity, attr, form_data[attr])
+        #             else: 
+        #                 invalid = True
+        #     if not invalid:
+        #         db.session.commit()
+        #         response = make_response(
+        #             activity.to_dict(),
+        #             202
+        #         )
+        #     else:
+        #         response = make_response(
+        #             {'errors': ['validation errors']},
+        #             400
+        #         )
     else:
         response = make_response(
             {'error': 'Activity not found'},
